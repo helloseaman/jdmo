@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>欢迎光临</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .title {
+            font-size: 52px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            letter-spacing: 6px;
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .tip {
+            font-size: 20px;
+            color: #cbd5e1;
+            margin-bottom: 50px;
+            line-height: 1.8;
+        }
+
+        .contact {
+            font-size: 18px;
+            color: #94a3b8;
+            margin-top: 40px;
+        }
+
+        .email {
+            color: #38bdf8;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 36px;
+            }
+            .tip {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div class="content">
+        <div class="title">欢迎光临</div>
+
+        <div class="tip">
+            本网站当前访问人次太多，无法热情的为您提供专属服务，敬请谅解！
+        </div>
+
+        <div class="contact">
+            如需商务合作，请联系邮箱：
+            <span class="email">helloseaman@qq.com</span>
+        </div>
+    </div>
+
+<script>
+// 粒子动态背景
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+let width, height;
+let particles = [];
+
+function resizeCanvas() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+class Particle {
+    constructor(){
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.radius = Math.random() * 2 + 1;
+        this.speedX = Math.random() * 0.5 - 0.25;
+        this.speedY = Math.random() * 0.5 - 0.25;
+        this.color = 'rgba(56, 189, 248, 0.6)';
+    }
+    update(){
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if(this.x < 0 || this.x > width) this.speedX *= -1;
+        if(this.y < 0 || this.y > height) this.speedY *= -1;
+    }
+    draw(){
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+    }
+}
+
+// 初始化粒子
+for(let i = 0; i < 80; i++){
+    particles.push(new Particle());
+}
+
+// 连线效果
+function drawLine(p1,p2){
+    let dx = p1.x - p2.x;
+    let dy = p1.y - p2.y;
+    let dist = Math.sqrt(dx*dx + dy*dy);
+    if(dist < 120){
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(56, 189, 248, ${1 - dist/120})`;
+        ctx.lineWidth = 0.5;
+        ctx.moveTo(p1.x,p1.y);
+        ctx.lineTo(p2.x,p2.y);
+        ctx.stroke();
+    }
+}
+
+function animate(){
+    ctx.clearRect(0,0,width,height);
+    for(let i=0;i<particles.length;i++){
+        particles[i].update();
+        particles[i].draw();
+        for(let j=i+1;j<particles.length;j++){
+            drawLine(particles[i],particles[j]);
+        }
+    }
+    requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>
